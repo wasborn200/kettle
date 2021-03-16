@@ -4,6 +4,8 @@
 #include <Windows.h>
 
 #define MAXWATER 1000
+#define LOCKON "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
+#define LOCKOFF "｜　｜　\x1b[31m●\x1b[39m　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 
 extern int nowWater;
 extern char str[13][80];
@@ -12,16 +14,16 @@ extern char degs[11][80];
 
 char waters[11][80] = {
 	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■□□□□□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■□□□□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■□□□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■□□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■□□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■■□□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■■■□□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■■■■□□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■■■■■□　　　　　　｜\n",
-	"｜　　　　　水位：■■■■■■■■■■　　　　　　｜\n"
+	"｜　　　　　水位：\x1b[34m■\x1b[39m□□□□□□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■\x1b[39m□□□□□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■\x1b[39m□□□□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■\x1b[39m□□□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■\x1b[39m□□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■■\x1b[39m□□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■■■\x1b[39m□□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■■■■\x1b[39m□□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■■■■■\x1b[39m□　　　　　　｜\n",
+	"｜　　　　　水位：\x1b[34m■■■■■■■■■■\x1b[39m　　　　　　｜\n"
 };
 
 /// <summary>
@@ -66,7 +68,7 @@ void addWater() {
 void drainWater() {
 	
 	int lockCount = 0;
-	strcpy(str[6], "｜　｜　●　｜　    ｜　　　｜　　　｜　　　｜　　｜\n");
+	strcpy(str[6], LOCKOFF);
 	changeDisplay();
 	printf("\rお湯を出すにはSHIFTキーを押し続けてください。");
 
@@ -93,6 +95,7 @@ void drainWater() {
 		// Shiftキーを押していないだけなら、押すためのアナウンスを行う。
 		if (nowWater < 100) {
 			nowDeg = 10;
+			strcpy(str[6], LOCKON);
 			strcpy(str[5], degs[0]);
 			changeDisplay();
 			printf("\rお湯が無くなりました。");
@@ -110,7 +113,7 @@ void drainWater() {
 
 	// lockCountが10になると給湯がロックされる
 	if (lockCount >= 10) {
-		strcpy(str[6], "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n");
+		strcpy(str[6], LOCKON);
 		changeDisplay();
 		printf("\r給湯がロックされました。");
 		Sleep(2000);
