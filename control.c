@@ -22,16 +22,3 @@ void changeDisplay() {
 void messageReset() {
 	printf("\r　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
 }
-
-
-
-/// <summary>
-/// 時間経過を設定する
-/// </summary>
-/// <param name="i">経過時間(秒)</param>
-//void interval(double i)
-//{
-//	clock_t g;
-//	g = i * CLOCKS_PER_SEC + clock();
-//	while (g > clock());
-//}

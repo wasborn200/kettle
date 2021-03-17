@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <Windows.h>
 
+#include "header.h"
 #include "control.c"
 #include "water.c"
 #include "deg.c"
@@ -23,7 +24,7 @@ char str[13][80] = {
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
 	"｜　｜ロック｜　　　｜温　度｜　　　｜　　　｜　　｜\n",
 	"｜　｜解　除｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
-	"｜　｜　　　｜　　　｜ - - -｜　　　｜給　湯｜　　｜\n",
+	"｜　｜　　　｜　　　｜ \x1b[31m- - -\x1b[39m｜　　　｜給　湯｜　　｜\n",
 	"｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n",
 	"｜　｜　　　｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
@@ -35,6 +36,7 @@ char str[13][80] = {
 
 int main(void)
 {
+
 	for (int i = 0; i < 13; i++)
 	{
 		printf(str[i]);
@@ -45,7 +47,7 @@ int main(void)
 	while(1) {
 		
 		// 水が無い場合は水を足す
-		if (nowWater < 100) {
+		if (nowWater == 0) {
 			addWater();
 		}
 
@@ -56,7 +58,7 @@ int main(void)
 
 		// 水があり、お湯が沸いている状態であれば、
 		// ロック解除を促すアナウンスを行い、入力を受け付ける
-		if (nowWater > 100 || nowDeg == 100) {
+		if (nowWater > 0 && nowDeg == 100) {
 			printf("\r給湯するにはロックを解除してください。解除：r、アプリ終了:q)");
 			ch = _getche();
 			rewind(stdin);

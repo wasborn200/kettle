@@ -10,7 +10,6 @@
 extern int nowWater;
 extern char str[13][80];
 extern int nowDeg;
-extern char degs[11][80];
 
 char waters[11][80] = {
 	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
@@ -93,10 +92,10 @@ void drainWater() {
 
 		// 水位が0になるとお湯が無くなったことのアナウンスを行う。
 		// Shiftキーを押していないだけなら、押すためのアナウンスを行う。
-		if (nowWater < 100) {
+		if (nowWater == 0) {
 			nowDeg = 10;
 			strcpy(str[6], LOCKON);
-			strcpy(str[5], degs[0]);
+			changeDisplayDeg();
 			changeDisplay();
 			printf("\rお湯が無くなりました。");
 			Sleep(2000);
