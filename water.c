@@ -4,11 +4,12 @@
 #include <Windows.h>
 
 #define MAXWATER 1000
+#define LACKWATER 0
 #define LOCKON "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 #define LOCKOFF "｜　｜　\x1b[31m●\x1b[39m　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 
 extern int nowWater;
-extern char str[13][80];
+extern char str[18][80];
 extern int nowDeg;
 
 char waters[11][80] = {
@@ -44,7 +45,7 @@ void addWater() {
 				break;
 			}
 
-			strcpy(str[11], waters[nowWater / 100]);
+			strcpy(str[16], waters[nowWater / 100]);
 			changeDisplay();
 			printf("\r注水中");
 
@@ -83,7 +84,7 @@ void drainWater() {
 				break;
 			}
 
-			strcpy(str[11], waters[nowWater / 100]);
+			strcpy(str[16], waters[nowWater / 100]);
 			changeDisplay();
 			printf("\r給湯中");
 
@@ -92,7 +93,7 @@ void drainWater() {
 
 		// 水位が0になるとお湯が無くなったことのアナウンスを行う。
 		// Shiftキーを押していないだけなら、押すためのアナウンスを行う。
-		if (nowWater == 0) {
+		if (nowWater == LACKWATER) {
 			nowDeg = 10;
 			strcpy(str[6], LOCKON);
 			changeDisplayDeg();

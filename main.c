@@ -11,33 +11,41 @@
 #include "deg.c"
 
 #define MAXWATER 1000
-#define MAXDEG 100
+#define LACKWATER 0
 
 int nowDeg = 10;
+int maxDeg = 98;
 int nowWater = 0;
 int maxWater = 1000;
+int keepDegFlag = 0;
+int dropDegCount = 0;
 char ch;
 
-char str[13][80] = {
+char str[18][80] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n",
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
 	"｜　｜ロック｜　　　｜温　度｜　　　｜　　　｜　　｜\n",
 	"｜　｜解　除｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
-	"｜　｜　　　｜　　　｜ \x1b[31m- - -\x1b[39m｜　　　｜給　湯｜　　｜\n",
+	"｜　｜　　　｜　　　｜ - - -｜　　　｜給　湯｜　　｜\n",
 	"｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n",
 	"｜　｜　　　｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
-	"｜　（入力ｒ）　　　　　　　　　（入力ＳＨＩＦＴ）｜\n",
+	"｜　　入力ｒ　　　　　　　　　　　入力ＳＨＩＦＴ　｜\n",
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
-	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
+	"｜　　　　　　ーーー　　　　　　　　　　　　　　　｜\n",
+	"｜　　　　　｜保　温｜　　98　90　70　　　　　　　｜\n",
+	"｜　入力ｈ　｜選　択｜　　〇　〇　〇　　　　　　　｜\n",
+	"｜　　　　　　ーーー　　　　　　　　　　　　　　　｜\n",
+	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+	"｜　　　　　水位：□□□□□□□□□□　入力ＡＬＴ｜\n",
 	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n"
 };
 
 int main(void)
 {
 
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < 18; i++)
 	{
 		printf(str[i]);
 	}
@@ -47,36 +55,61 @@ int main(void)
 	while(1) {
 		
 		// 水が無い場合は水を足す
-		if (nowWater == 0) {
+		if (nowWater == LACKWATER) {
 			addWater();
 		}
 
 		// 水を沸かす
-		if (nowDeg < MAXDEG) {
+		if (nowDeg < maxDeg) {
 			raiseDeg();
 		}
 
 		// 水があり、お湯が沸いている状態であれば、
 		// ロック解除を促すアナウンスを行い、入力を受け付ける
-		if (nowWater > 0 && nowDeg == 100) {
-			printf("\r給湯するにはロックを解除してください。解除：r、アプリ終了:q)");
-			ch = _getche();
-			rewind(stdin);
+		if (nowWater > LACKWATER && nowDeg >= maxDeg) {
+			printf("\r給湯ロック解除：r、保温温度変更：h、アプリ終了:q)");
 		}
 
 		// r入力：ロックが解除されたときの処理
 		// q入力：アプリ終了
-		if (ch == 'r') {
+		if (GetKeyState('R') & 0x8000) {
 			drainWater();
 		}
-		else if (ch == 'q') {
+		else if (GetKeyState('H') & 0x8000) {
+			changeMaxDeg();
+			Sleep(500);
+		}
+		else if (GetKeyState('Q') & 0x8000) {
 			break;
 		}
 
+		Sleep(50);
+		dropDegCount++;
+		// 時間変化で温度を下げる
+		if (dropDegCount == 40) {
+			downDeg();
+		}
 	}
 
 	return 0;
 }
+
+//char str[13][80] = {
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n",
+//	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
+//	"｜　｜ロック｜　　　｜温　度｜　　　｜　　　｜　　｜\n",
+//	"｜　｜解　除｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜　　　｜　　　｜ \x1b[31m- - -\x1b[39m｜　　　｜給　湯｜　　｜\n",
+//	"｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜　　　｜　　　｜　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
+//	"｜　（入力ｒ）　　　　　　　　　（入力ＳＨＩＦＴ）｜\n",
+//	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n"
+//};
+
 
 //printf("\x1b[30m");     /* 前景色を黒に */
 //printf("前景色が黒\n");
