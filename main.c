@@ -11,17 +11,24 @@
 #include "deg.c"
 
 #define MAXWATER 1000
+#define MINDEG 10
 #define LACKWATER 0
+#define TARGETDEG_98 98
+#define TARGETDEG_90 90
+#define TARGETDEG_70 70
+#define COUNTRESET 0
+#define LINE_MAX_NUMBER 18
+#define COLUMN_NUMBER 80
 
-int nowDeg = 10;
-int maxDeg = 98;
-int nowWater = 0;
-int maxWater = 1000;
-int keepDegFlag = 0;
-int dropDegCount = 0;
+int nowDeg = MINDEG;
+int targetDeg = TARGETDEG_98;
+int nowWater = LACKWATER;
+int keepDegFlag = COUNTRESET;
+int dropDegCount = COUNTRESET;
 char ch;
 
-char str[18][80] = {
+// 標準の画面表示
+char display[LINE_MAX_NUMBER][COLUMN_NUMBER] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n",
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
@@ -44,48 +51,43 @@ char str[18][80] = {
 
 int main(void)
 {
-
-	for (int i = 0; i < 18; i++)
-	{
-		printf(str[i]);
-	}
+	changeDisplay();
 	printf("給湯ポットアプリ開始");
 	Sleep(2000);
 
 	while(1) {
 		
-		// 水が無い場合は水を足す
+		// 水が無い場合は給水する
 		if (nowWater == LACKWATER) {
 			addWater();
 		}
 
-		// 水を沸かす
-		if (nowDeg < maxDeg) {
+		// 水があり、保温温度以下の状態であれば水を加熱する
+		if (nowWater > LACKWATER && nowDeg < targetDeg) {
 			raiseDeg();
 		}
 
-		// 水があり、お湯が沸いている状態であれば、
-		// ロック解除を促すアナウンスを行い、入力を受け付ける
-		if (nowWater > LACKWATER && nowDeg >= maxDeg) {
+		// 水があり、お湯が沸いている状態であればアナウンスを行う
+		if (nowWater > LACKWATER && nowDeg >= targetDeg) {
 			printf("\r給湯ロック解除：r、保温温度変更：h、アプリ終了:q)");
 		}
 
 		// r入力：ロックが解除されたときの処理
+		// h入力：保温温度変更
 		// q入力：アプリ終了
 		if (GetKeyState('R') & 0x8000) {
 			drainWater();
 		}
 		else if (GetKeyState('H') & 0x8000) {
-			changeMaxDeg();
-			Sleep(500);
+			changeTargetDeg();
 		}
 		else if (GetKeyState('Q') & 0x8000) {
 			break;
 		}
 
+		// 2秒毎に温度を１℃下げる
 		Sleep(50);
 		dropDegCount++;
-		// 時間変化で温度を下げる
 		if (dropDegCount == 40) {
 			downDeg();
 		}
@@ -94,7 +96,9 @@ int main(void)
 	return 0;
 }
 
-//char str[13][80] = {
+//sleep(1000) = 1秒
+
+//char display[13][80] = {
 //	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n",
 //	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
 //	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
@@ -136,11 +140,11 @@ int main(void)
 //{
 //	for (int j = 0; j < 18; j++)
 //	{
-//		printf("%s", str[i][j]);
+//		printf("%s", display[i][j]);
 //	}
 //}
 
-//char str[15][80] = {
+//char display[15][80] = {
 //	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",
 //	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
 //	"｜　　　　　　　　　　　　　　温度　　　　　　　　　　　　　　　｜\n",
@@ -158,7 +162,7 @@ int main(void)
 //	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n"
 //};
 
-//char str[7][6][3] = {
+//char display[7][6][3] = {
 //	{"　","　","　","　","　","\n"},
 //	{"　","　","　","　","　","\n"},
 //	{"　","　","　","　","　","\n"},
@@ -168,32 +172,32 @@ int main(void)
 //	{"　","　","　","　","　","\n"}
 //};
 //
-//strcpy(str[0][2], "■");
-//strcpy(str[1][1], "■");
-//strcpy(str[1][2], "■");
-//strcpy(str[2][0], "■");
-//strcpy(str[2][2], "■");
-//strcpy(str[3][2], "■");
-//strcpy(str[4][2], "■");
-//strcpy(str[5][2], "■");
-//strcpy(str[6][0], "■");
-//strcpy(str[6][1], "■");
-//strcpy(str[6][2], "■");
-//strcpy(str[6][3], "■");
-//strcpy(str[6][4], "■");
+//displaycpy(display[0][2], "■");
+//displaycpy(display[1][1], "■");
+//displaycpy(display[1][2], "■");
+//displaycpy(display[2][0], "■");
+//displaycpy(display[2][2], "■");
+//displaycpy(display[3][2], "■");
+//displaycpy(display[4][2], "■");
+//displaycpy(display[5][2], "■");
+//displaycpy(display[6][0], "■");
+//displaycpy(display[6][1], "■");
+//displaycpy(display[6][2], "■");
+//displaycpy(display[6][3], "■");
+//displaycpy(display[6][4], "■");
 //
 //
 //for (int i = 0; i < 7; i++)
 //{
 //	for (int j = 0; j < 6; j++)
 //	{
-//		printf("%s", str[i][j]);
+//		printf("%s", display[i][j]);
 //	}
 //}
 //
 
 
-//char str[7][80] = {
+//char display[7][80] = {
 //   //０１２３４５６７８９０１２３４５６
 //	"　　　■■　　　■■　　　■■　　\n",
 //	"　　■　　■　■　　■　■　　■　\n",
@@ -204,7 +208,7 @@ int main(void)
 //	"　　　■■　　　■■　　　■■　　\n"
 //};
 
-//char str[7][18][10] = {
+//char display[7][18][10] = {
 //   //０１２３４５６７８９０１２３４５６
 //	{"　", "　", "　", "■", "■", "　", "　", "　", "■", "■", "　", "　", "　", "■", "■", "　", "　", "\n"},
 //	{"　", "　", "■", "　", "　", "■", "　", "■", "　", "　", "■", "　", "■", "　", "　", "■", "　", "\n"},
@@ -215,7 +219,7 @@ int main(void)
 //	{"　", "　", "　", "■", "■", "　", "　", "　", "■", "■", "　", "　", "　", "■", "■", "　", "　", "\n"}
 //};
 
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -225,7 +229,7 @@ int main(void)
 //	"■　　　■\n",
 //	"　■■■　\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　　■　　\n",
 //	"　■■　　\n",
@@ -235,7 +239,7 @@ int main(void)
 //	"　　■　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -245,7 +249,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -255,7 +259,7 @@ int main(void)
 //	"■　　　■\n",
 //	"　■■■　\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -265,7 +269,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -275,7 +279,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -285,7 +289,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -295,7 +299,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",
@@ -305,7 +309,7 @@ int main(void)
 //	"　■　　　\n",
 //	"■■■■■\n"
 //};
-//char str[7][80] = {
+//char display[7][80] = {
 //   ０１２３４  
 //	"　■■■　\n",
 //	"■　　　■\n",

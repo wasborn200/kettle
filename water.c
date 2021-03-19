@@ -4,15 +4,22 @@
 #include <Windows.h>
 
 #define MAXWATER 1000
+#define MINDEG 10
 #define LACKWATER 0
-#define LOCKON "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
-#define LOCKOFF "｜　｜　\x1b[31m●\x1b[39m　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
+#define WATER_100 100
+#define COUNTRESET 0
+#define LINE_LOCK_NUMBER 6
+#define LINE_WATER_NUMBER 16
+#define LINE_WATERS_NUMBER 11
+#define COLUMN_NUMBER 80
+#define DISP_LOCKON "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
+#define DISP_LOCKOFF "｜　｜　\x1b[31m●\x1b[39m　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 
 extern int nowWater;
-extern char str[18][80];
+extern char display[LINE_MAX_NUMBER][COLUMN_NUMBER];
 extern int nowDeg;
 
-char waters[11][80] = {
+char waters[LINE_WATERS_NUMBER][COLUMN_NUMBER] = {
 	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
 	"｜　　　　　水位：\x1b[34m■\x1b[39m□□□□□□□□□　　　　　　｜\n",
 	"｜　　　　　水位：\x1b[34m■■\x1b[39m□□□□□□□□　　　　　　｜\n",
@@ -39,13 +46,13 @@ void addWater() {
 		// Altキーを押し続ける間、0.5秒毎に水位を100上昇させる
 		while (GetKeyState(VK_MENU) & 0x8000) {
 			if (nowWater < MAXWATER) {
-				nowWater += 100;
+				nowWater += WATER_100;
 			}
 			else {
 				break;
 			}
 
-			strcpy(str[16], waters[nowWater / 100]);
+			strcpy(display[LINE_WATER_NUMBER], waters[nowWater / WATER_100]);
 			changeDisplay();
 			printf("\r注水中");
 
@@ -67,24 +74,25 @@ void addWater() {
 /// </summary>
 void drainWater() {
 	
-	int lockCount = 0;
-	strcpy(str[6], LOCKOFF);
+	int lockCount = COUNTRESET;
+	lockOff();
 	changeDisplay();
-	printf("\rお湯を出すにはSHIFTキーを押し続けてください。");
+	printf("\rお湯を出すにはSHIFTキーを押し続けてください。給湯ロック：r");
+	Sleep(1000);
 
 	do
 	{
 		// Shiftキーを押し続ける間、100ずつ水位を減少させる
 		while (GetKeyState(VK_SHIFT) & 0x8000) {
 			int lockCount = 0;
-			if (nowWater >= 100) {
-				nowWater -= 100;
+			if (nowWater >= WATER_100) {
+				nowWater -= WATER_100;
 			}
 			else {
 				break;
 			}
 
-			strcpy(str[16], waters[nowWater / 100]);
+			strcpy(display[16], waters[nowWater / WATER_100]);
 			changeDisplay();
 			printf("\r給湯中");
 
@@ -92,32 +100,34 @@ void drainWater() {
 		}
 
 		// 水位が0になるとお湯が無くなったことのアナウンスを行う。
-		// Shiftキーを押していないだけなら、押すためのアナウンスを行う。
+		// 水位が０ではなく、Shiftキーを押していない時は、押すためのアナウンスを行う。
 		if (nowWater == LACKWATER) {
-			nowDeg = 10;
-			strcpy(str[6], LOCKON);
-			changeDisplayDeg();
+			strcpy(display[LINE_LOCK_NUMBER], DISP_LOCKON);
+			nowDeg = MINDEG;
+			reflectDeg();
 			changeDisplay();
 			printf("\rお湯が無くなりました。");
 			Sleep(2000);
 			break;
 		}
-		else {
-			printf("\r　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-			printf("\rお湯を出すにはSHIFTキーを押し続けてください。");
-		}
-		Sleep(1000);
+		
+		messageReset();
+		printf("\rお湯を出すにはSHIFTキーを押し続けてください。給湯ロック：r");
+		Sleep(100);
 		lockCount++;
 
-	} while (lockCount < 10);
+		// ｒキーを押すと給湯をロックする
+		if (GetKeyState('R') & 0x8000) {
+			lockOn();
+			break;
+		}
 
-	// lockCountが10になると給湯がロックされる
-	if (lockCount >= 10) {
-		strcpy(str[6], LOCKON);
-		changeDisplay();
-		printf("\r給湯がロックされました。");
-		Sleep(2000);
+	} while (lockCount < 100);
+
+	// 操作をせずに10秒経過すると給湯がロックされる
+	if (lockCount >= 100) {
+		lockOn();
 	}
 
-	lockCount = 0;
+	lockCount = COUNTRESET;
 }
