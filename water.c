@@ -8,18 +8,18 @@
 #define LACKWATER 0
 #define WATER_100 100
 #define COUNTRESET 0
-#define LINE_LOCK_NUMBER 6
-#define LINE_WATER_NUMBER 16
-#define LINE_WATERS_NUMBER 11
+#define ROW_LOCK_NUMBER 6
+#define ROW_WATER_NUMBER 16
+#define ROW_WATERS_NUMBER 11
 #define COLUMN_NUMBER 80
 #define DISP_LOCKON "｜　｜　〇　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 #define DISP_LOCKOFF "｜　｜　\x1b[31m●\x1b[39m　｜　    ｜　　　｜　　　｜　　　｜　　｜\n"
 
 extern int nowWater;
-extern char display[LINE_MAX_NUMBER][COLUMN_NUMBER];
+extern char display[ROW_MAX_NUMBER][COLUMN_NUMBER];
 extern int nowDeg;
 
-char waters[LINE_WATERS_NUMBER][COLUMN_NUMBER] = {
+char waters[ROW_WATERS_NUMBER][COLUMN_NUMBER] = {
 	"｜　　　　　水位：□□□□□□□□□□　　　　　　｜\n",
 	"｜　　　　　水位：\x1b[34m■\x1b[39m□□□□□□□□□　　　　　　｜\n",
 	"｜　　　　　水位：\x1b[34m■■\x1b[39m□□□□□□□□　　　　　　｜\n",
@@ -38,7 +38,7 @@ char waters[LINE_WATERS_NUMBER][COLUMN_NUMBER] = {
 /// </summary>
 void addWater() {
 	messageReset();
-	printf("\r水がありません。水を入れるにはAltキーを押し続けてください。");
+	printf("\rAltキー長押しで水を入れてください。(アプリ終了:q)");
 
 	// 水位が1000になるまで、水を入れるためのアナウンスを続ける
 	do
@@ -52,14 +52,18 @@ void addWater() {
 				break;
 			}
 
-			strcpy(display[LINE_WATER_NUMBER], waters[nowWater / WATER_100]);
+			strcpy(display[ROW_WATER_NUMBER], waters[nowWater / WATER_100]);
 			changeDisplay();
 			printf("\r注水中");
 
 			Sleep(500);
 		}
 
-		printf("\r水がありません。水を入れるにはAltキーを押し続けてください。");
+		printf("\rAltキー長押しで水を入れてください。(アプリ終了:q)");
+
+		if (GetKeyState('Q') & 0x8000) {
+			exit(0);
+		}
 
 	} while (nowWater != MAXWATER);
 
@@ -78,7 +82,6 @@ void drainWater() {
 	lockOff();
 	changeDisplay();
 	printf("\rお湯を出すにはSHIFTキーを押し続けてください。給湯ロック：r");
-	Sleep(1000);
 
 	do
 	{
@@ -102,7 +105,7 @@ void drainWater() {
 		// 水位が0になるとお湯が無くなったことのアナウンスを行う。
 		// 水位が０ではなく、Shiftキーを押していない時は、押すためのアナウンスを行う。
 		if (nowWater == LACKWATER) {
-			strcpy(display[LINE_LOCK_NUMBER], DISP_LOCKON);
+			strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKON);
 			nowDeg = MINDEG;
 			reflectDeg();
 			changeDisplay();

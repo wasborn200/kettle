@@ -1,2 +1,4 @@
 ﻿  main.c
+C:\Users\Owner\source\repos\kettle\main.c(23,18): warning C4047: '初期化中': 間接参照のレベルが 'int' と 'void *' で異なっています。
+C:\Users\Owner\source\repos\kettle\main.c(63,46): warning C4047: '==': 間接参照のレベルが 'int' と 'void *' で異なっています。
   kettle.vcxproj -> C:\Users\Owner\source\repos\kettle\Debug\kettle.exe

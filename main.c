@@ -17,18 +17,17 @@
 #define TARGETDEG_90 90
 #define TARGETDEG_70 70
 #define COUNTRESET 0
-#define LINE_MAX_NUMBER 18
+#define ROW_MAX_NUMBER 18 // row_maxに変更する　カラムは合ってる　行列英語確認　ローとカラム
 #define COLUMN_NUMBER 80
 
-int nowDeg = MINDEG;
+int nowDeg = NULL;
 int targetDeg = TARGETDEG_98;
 int nowWater = LACKWATER;
 int keepDegFlag = COUNTRESET;
 int dropDegCount = COUNTRESET;
-char ch;
 
 // 標準の画面表示
-char display[LINE_MAX_NUMBER][COLUMN_NUMBER] = {
+char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n",
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
 	"｜　　ーーー　　　　　ーーー　　　　　ーーー　　　｜\n",
@@ -49,6 +48,9 @@ char display[LINE_MAX_NUMBER][COLUMN_NUMBER] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーー\n"
 };
 
+
+
+
 int main(void)
 {
 	changeDisplay();
@@ -58,7 +60,7 @@ int main(void)
 	while(1) {
 		
 		// 水が無い場合は給水する
-		if (nowWater == LACKWATER) {
+		if (nowWater == LACKWATER && nowDeg == NULL) {
 			addWater();
 		}
 
@@ -82,7 +84,7 @@ int main(void)
 			changeTargetDeg();
 		}
 		else if (GetKeyState('Q') & 0x8000) {
-			break;
+			exit(0);
 		}
 
 		// 2秒毎に温度を１℃下げる
@@ -95,6 +97,53 @@ int main(void)
 
 	return 0;
 }
+
+//char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",
+//	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　ーーー　　　　　ーーーーーーー　　　　　ーーー　　　｜\n",
+//	"｜　｜ロック｜　　　｜　　温　度　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜解　除｜　　　｜　　　　　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜　　　｜　　　｜　　 - - -　　｜　　　｜給　湯｜　　｜\n",
+//	"｜　｜　〇　｜　    ｜　　　　　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜　　　｜　　　｜加熱　　　保温｜　　　｜　　　｜　　｜\n",
+//	"｜　　ーーー　　　　｜　〇　　　　〇｜　　　　ーーー　　　｜\n",
+//	"｜　　入力ｒ　　　　｜　　　　　　　｜　　入力ＳＨＩＦＴ　｜\n",
+//	"｜　　　　　　　　　　ーーーーーーー　　　　　　　　　　　｜\n",
+//	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　　　　　　　　ーーー　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　　　　　　　｜保　温｜　　98　90　70　　　　　　　　｜\n",
+//	"｜　　　　入力ｈ　｜選　択｜　　〇　〇　〇　　　　　　　　｜\n",
+//	"｜　　　　　　　　　ーーー　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　　　　　　　▼　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　　　　水位：□□□□□□□□□□　入力ＡＬＴ　　　　｜\n",
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n"
+//};
+
+//char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",
+//	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　ーーー　　　　　ーーーーーーー　　　　　ーーー　　　｜\n",
+//	"｜　｜　　　｜　　　｜　　温　度　　｜　　　｜　　　｜　　｜\n",
+//	"｜　｜加　熱｜　　　｜　　　　　　　｜　　　｜給　湯｜　　｜\n",
+//	"｜　｜　　　｜　　　｜　　 - - -　　｜　　　｜　　　｜　　｜\n",
+//	"｜　　ーーー　　    ｜　　　　　　　｜　　　　ーーー　　　｜\n",
+//	"｜　　入力Ｈ　　　　｜加熱　　　保温｜　　　　入力Ａ　　　｜\n",
+//	"｜　　　　　　　　　｜　〇　　　　〇｜　　　　　　　　　　｜\n",
+//	"｜　　ーーー　　　　｜　　　　　　　｜　　　　ーーー　　　｜\n",
+//	"｜　｜保　温｜　　　｜　98　90　70　｜　　　｜ロック｜　　｜\n",
+//	"｜　｜温　度｜　　　｜　〇　〇　〇　｜　　　｜解　除｜　　｜\n",
+//	"｜　｜選　択｜　　　｜　　　　　　　｜　　　｜　　　｜　　｜\n",
+//	"｜　　ーーー　　　　　ーーーーーーー　　　　｜　〇　｜　　｜\n",
+//	"｜　　入力Ｔ　　　　　　　　　　　　　　　　｜　　　｜　　｜\n",
+//	"｜　　　　　　　　　　▼　　　　　　　　　　　ーーー　　　｜\n",
+//	"｜　　ーーー　　水位：□□□□□□□□□□　　入力Ｒ　　　｜\n",
+//	"｜　｜給　水｜　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　ーーー　　　　　　　　　　　　　　　　　　　　　　　｜\n",
+//	"｜　　入力Ｗ　　　　　　　　　　　【アプリ終了　入力：Ｑ】｜\n",
+//	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n"
+//};
+
 
 //sleep(1000) = 1秒
 

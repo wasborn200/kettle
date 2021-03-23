@@ -9,8 +9,8 @@
 #define TARGETDEG_98 98
 #define TARGETDEG_90 90
 #define TARGETDEG_70 70
-#define LINE_DISPLAYDEG_NUMBER 5
-#define LINE_TARGETDEG_NUMBER 13
+#define ROW_DISPLAYDEG_NUMBER 5
+#define ROW_TARGETDEG_NUMBER 13
 #define DISP_TARGETDEG_98 "｜　入力ｈ　｜選　択｜　　\x1b[31m●\x1b[39m　〇　〇　　　　　　　｜\n"
 #define DISP_TARGETDEG_90 "｜　入力ｈ　｜選　択｜　　〇　\x1b[31m●\x1b[39m　〇　　　　　　　｜\n"
 #define DISP_TARGETDEG_70 "｜　入力ｈ　｜選　択｜　　〇　〇　\x1b[31m●\x1b[39m　　　　　　　｜\n"
@@ -28,7 +28,7 @@ char displayDeg1[80] = "｜　｜　　　｜　　　｜ \x1b[31m";
 char displayDeg2[80] = "\x1b[39m｜　　　｜給　湯｜　　｜\n";
 
 /// <summary>
-/// 水を加熱させる
+/// 保温温度まで水を加熱させる
 /// </summary>
 void raiseDeg() {
 	
@@ -38,7 +38,7 @@ void raiseDeg() {
 	
 	// 初回は98度のランプを点灯させる
 	if (targetDeg == TARGETDEG_98) {
-		strcpy(display[LINE_TARGETDEG_NUMBER], DISP_TARGETDEG_98);
+		strcpy(display[ROW_TARGETDEG_NUMBER], DISP_TARGETDEG_98);
 	}
 
 	// 0.5秒毎に10度ずつ加熱する
@@ -88,7 +88,7 @@ void downDeg() {
 /// </summary>
 void reflectDeg() {
 
-	strcpy(display[LINE_DISPLAYDEG_NUMBER], "");
+	strcpy(display[ROW_DISPLAYDEG_NUMBER], "");
 
 	// 現在の温度を文字にして、間にスペースを入れる
 	// 最低温度の時は'-'で表示する
@@ -110,11 +110,14 @@ void reflectDeg() {
 	}
 	deg[5] = '\0';
 
-	strcat(display[LINE_DISPLAYDEG_NUMBER], displayDeg1);
-	strcat(display[LINE_DISPLAYDEG_NUMBER], deg);
-	strcat(display[LINE_DISPLAYDEG_NUMBER], displayDeg2);
+	strcat(display[ROW_DISPLAYDEG_NUMBER], displayDeg1);
+	strcat(display[ROW_DISPLAYDEG_NUMBER], deg);
+	strcat(display[ROW_DISPLAYDEG_NUMBER], displayDeg2);
 }
 
+/// <summary>
+/// 保温温度を変更する
+/// </summary>
 void changeTargetDeg() {
 	
 	// 保温温度を98→90→70の順でループする
