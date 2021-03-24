@@ -10,10 +10,13 @@
 #define TARGETDEG_90 90
 #define TARGETDEG_70 70
 #define ROW_DISPLAYDEG_NUMBER 5
-#define ROW_TARGETDEG_NUMBER 13
-#define DISP_TARGETDEG_98 "｜　入力ｈ　｜選　択｜　　\x1b[31m●\x1b[39m　〇　〇　　　　　　　｜\n"
-#define DISP_TARGETDEG_90 "｜　入力ｈ　｜選　択｜　　〇　\x1b[31m●\x1b[39m　〇　　　　　　　｜\n"
-#define DISP_TARGETDEG_70 "｜　入力ｈ　｜選　択｜　　〇　〇　\x1b[31m●\x1b[39m　　　　　　　｜\n"
+#define ROW_TARGETDEG_NUMBER 11
+#define ROW_STATUS_NUMBER 8
+#define DISP_TARGETDEG_98 "｜　｜温　度｜　　　｜　\x1b[31m●\x1b[39m　〇　〇　｜　　　｜解　除｜　　｜\n"
+#define DISP_TARGETDEG_90 "｜　｜温　度｜　　　｜　〇　\x1b[31m●\x1b[39m　〇　｜　　　｜解　除｜　　｜\n"
+#define DISP_TARGETDEG_70 "｜　｜温　度｜　　　｜　〇　〇　\x1b[31m●\x1b[39m　｜　　　｜解　除｜　　｜\n"
+#define DISP_STATUS_HEATINGDEG "｜　　　　　　　　　｜　\x1b[31m●\x1b[39m　　　　〇｜　　　　　　　　　　｜\n"
+#define DISP_STATUS_KEEPINGDEG "｜　　　　　　　　　｜　〇　　　　\x1b[31m●\x1b[39m｜　　　　　　　　　　｜\n"
 #define COUNTRESET 0
 
 extern int nowDeg;
@@ -24,8 +27,8 @@ int raiseDegCount;
 int tempDeg;
 char deg[20];
 char temp[20];
-char displayDeg1[80] = "｜　｜　　　｜　　　｜ \x1b[31m";
-char displayDeg2[80] = "\x1b[39m｜　　　｜給　湯｜　　｜\n";
+char displayDeg1[80] = "｜　｜　　　｜　　　｜　　 \x1b[31m";
+char displayDeg2[80] = "\x1b[39m　　｜　　　｜　　　｜　　｜\n";
 
 /// <summary>
 /// 保温温度まで水を加熱させる
@@ -35,16 +38,25 @@ void raiseDeg() {
 	messageReset();
 	printf("\r加熱を開始します。");
 	Sleep(2000);
-	
-	// 初回は98度のランプを点灯させる
-	if (targetDeg == TARGETDEG_98) {
-		strcpy(display[ROW_TARGETDEG_NUMBER], DISP_TARGETDEG_98);
-	}
+
+	strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_HEATINGDEG);
 
 	// 0.5秒毎に10度ずつ加熱する
 	while (nowDeg < targetDeg) {
+
+		// h入力：保温温度変更
+		// q入力：アプリ終了
+		if (GetKeyState('T') & 0x8000) {
+			changeTargetDeg();
+		}
+		else if (GetKeyState('Q') & 0x8000) {
+			exit(0);
+		}
+
 		Sleep(100);
 		raiseDegCount++;
+
+		// 0.5秒毎に温度を5度上昇させる
 		if (raiseDegCount == DEG_5) {
 			if ((tempDeg = targetDeg - nowDeg) <= DEG_5) {
 				nowDeg += tempDeg;
@@ -56,14 +68,11 @@ void raiseDeg() {
 			changeDisplay();
 			raiseDegCount = COUNTRESET;
 		}
-		printf("\r加熱中（保温温度変更：h）");
+		printf("\r加熱中（保温温度変更：Ｔ）");
 		
-		// hキーを入力することで最高温度を変更する
-        if (GetKeyState('H') & 0x8000) {
-			changeTargetDeg();
-		}
 	}
 
+	strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_KEEPINGDEG);
 	changeDisplay();
 	printf("\rお湯が沸きました。");
 	Sleep(2000);
@@ -74,7 +83,7 @@ void raiseDeg() {
 /// </summary>
 void downDeg() {
 
-	if (nowDeg != targetDeg) {
+	if (nowDeg > targetDeg) {
 		nowDeg -= DEG_1;
 		reflectDeg();
 		changeDisplay();
@@ -131,17 +140,47 @@ void changeTargetDeg() {
 	switch (keepDegFlag) {
 	case 0:
 		targetDeg = TARGETDEG_98;
-		strcpy(display[13], DISP_TARGETDEG_98);
+		strcpy(display[ROW_TARGETDEG_NUMBER], DISP_TARGETDEG_98);
 		break;
 	case 1:
 		targetDeg = TARGETDEG_90;
-		strcpy(display[13], DISP_TARGETDEG_90);
+		strcpy(display[ROW_TARGETDEG_NUMBER], DISP_TARGETDEG_90);
 		break;
 	case 2:
 		targetDeg = TARGETDEG_70;
-		strcpy(display[13], DISP_TARGETDEG_70);
+		strcpy(display[ROW_TARGETDEG_NUMBER], DISP_TARGETDEG_70);
 		break;
 	}
 	changeDisplay();
 	Sleep(500);
+}
+
+keepDeg() {
+
+	do {
+		printf("\r保温中。給湯する場合はロックを解除してください(入力Ｒ)。");
+
+		// r入力：ロックが解除されたときの処理
+		// h入力：保温温度変更
+		// q入力：アプリ終了
+		if (GetKeyState('R') & 0x8000) {
+			lockOff();
+			break;
+		}
+		else if (GetKeyState('T') & 0x8000) {
+			changeTargetDeg();
+		}
+		else if (GetKeyState('Q') & 0x8000) {
+			exit(0);
+		}
+
+		// 2秒毎に温度を１℃下げる
+		Sleep(50);
+		dropDegCount++;
+		if (dropDegCount == 40) {
+			downDeg();
+		}
+
+
+	} while (nowDeg >= targetDeg);
 }
