@@ -21,26 +21,27 @@
 extern int nowWater;
 extern char display[ROW_MAX_NUMBER][COLUMN_NUMBER];
 extern int nowDeg;
-extern int msgResetFlag;
 
 char waters[ROW_WATERS_NUMBER][COLUMN_NUMBER] = {
-	"｜　　ーーー　　水位：□□□□□□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■\x1b[39m□□□□□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■\x1b[39m□□□□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■\x1b[39m□□□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■\x1b[39m□□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■\x1b[39m□□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■■\x1b[39m□□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■■■\x1b[39m□□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■\x1b[39m□□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■■\x1b[39m□　　入力Ｒ　　　｜\n",
-	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■■■\x1b[39m　　入力Ｒ　　　｜\n"
+	"｜　　ーーー　　水位：□□□□□□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■\x1b[39m□□□□□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■\x1b[39m□□□□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■\x1b[39m□□□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■\x1b[39m□□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■\x1b[39m□□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■■\x1b[39m□□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■■■\x1b[39m□□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■\x1b[39m□□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■■\x1b[39m□　　入力Ｌ　　　｜\n",
+	"｜　　ーーー　　水位：\x1b[34m■■■■■■■■■■\x1b[39m　　入力Ｌ　　　｜\n"
 };
 
 /// <summary>
 /// 水位がMAXになるまで水をいれる
 /// </summary>
 void addWater() {
+	int msgResetFlag = MSG_RESET_OFF;
+
 	messageReset();
 	printf("\r給水(入力Ｗ)後、加熱ボタン(入力Ｈ)を押してください。");
 
@@ -69,17 +70,16 @@ void addWater() {
 			if (nowWater < MAXWATER) {
 				nowWater += WATER_200;
 				nowDeg = MINDEG;
+
+				strcpy(display[ROW_WATER_NUMBER], waters[nowWater / WATER_200]);
+				changeDisplay();
+				printf("\r給水中");
+				msgResetFlag = MSG_RESET_ON;
+				Sleep(500);
 			}
 			else {
 				break;
 			}
-
-			strcpy(display[ROW_WATER_NUMBER], waters[nowWater / WATER_200]);
-			changeDisplay();
-			printf("\r給水中");
-			msgResetFlag = MSG_RESET_ON;
-
-			Sleep(500);
 		}
 
 		if (msgResetFlag == MSG_RESET_ON) {
@@ -102,69 +102,54 @@ void addWater() {
 /// 一定時間何も行わない場合、給湯をロックする
 /// </summary>
 void drainWater() {
-	
+	int msgResetFlag = MSG_RESET_OFF;
 	int lockCount = COUNTRESET;
-	changeDisplay();
-	printf("\r給湯(入力Ａ)を行ってください。再ロック(入力Ｒ)");
 
-	do
-	{
-		// R入力：ロック
-		// Q入力：アプリ終了
-		if (GetKeyState('R') & 0x8000) {
+	messageReset();
+	printf("\r給湯(入力Ａ)を行ってください。再ロック(入力Ｌ)");
+
+	do {
+		if (GetKeyState('L') & 0x8000 || lockCount >= 100) {
 			lockOn();
 			break;
-		}
-		else if (GetKeyState('Q') & 0x8000) {
-			exit(0);
 		}
 
 		// Aキーを押し続ける間、200ずつ水位を減少させる
 		while (GetKeyState('A') & 0x8000) {
-			int lockCount = 0;
-			if (nowWater >= WATER_200) {
-				nowWater -= WATER_200;
-			}
-			else {
-				break;
-			}
+			lockCount = COUNTRESET;
+			nowWater -= WATER_200;
 
-			strcpy(display[16], waters[nowWater / WATER_200]);
+			strcpy(display[ROW_WATER_NUMBER], waters[nowWater / WATER_200]);
 			changeDisplay();
 			printf("\r給湯中");
 			msgResetFlag = MSG_RESET_ON;
-
 			Sleep(500);
+
+			if (nowWater == LACKWATER) {
+				break;
+			}
+
 		}
 
-		// 水位が0になるとお湯が無くなったことのアナウンスを行う。
-		if (nowWater == LACKWATER) {
-			strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_DEFAULT);
-			strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKON);
-			nowDeg = MINDEG;
-			reflectDeg();
-			changeDisplay();
-			printf("\rお湯が無くなりました。");
-			Sleep(2000);
-			break;
-		}
-		
 		if (msgResetFlag == MSG_RESET_ON) {
 			messageReset();
-			printf("\r給湯(入力Ａ)を行ってください。再ロック(入力Ｒ)");
+			printf("\r給湯(入力Ａ)を行ってください。再ロック(入力Ｌ)");
 			msgResetFlag = MSG_RESET_OFF;
 		}
-
 
 		Sleep(100);
 		lockCount++;
 
-	} while (lockCount < 100);
+	} while (nowWater != LACKWATER);
 
-	// 操作をせずに10秒経過すると給湯がロックされる
-	if (lockCount >= 100) {
-		lockOn();
+	if (nowWater == LACKWATER) {
+		strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_DEFAULT);
+		strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKON);
+		nowDeg = MINDEG;
+		reflectDeg();
+		changeDisplay();
+		printf("\rお湯が無くなりました。");
+		Sleep(2000);
 	}
 
-	lockCount = COUNTRESET;
 }

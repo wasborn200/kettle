@@ -10,9 +10,10 @@
 #include "water.c"
 #include "deg.c"
 
-#define MAXWATER 2000
 #define MINDEG 10
+#define TARGETDEG_98 98
 #define LACKWATER 0
+#define COUNTRESET 0
 #define ROW_MAX_NUMBER 21
 #define COLUMN_NUMBER 80
 #define LOCK_ON 0
@@ -25,12 +26,9 @@ int nowDeg = MINDEG;
 int targetDeg = TARGETDEG_98;
 int nowWater = LACKWATER;
 int keepDegFlag = COUNTRESET;
-int dropDegCount = COUNTRESET;
-int lock = 0;
-int msgResetFlag = MSG_RESET_OFF;
+int lock = LOCK_ON;
 
 // 初期画面表示
-
 
 char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",   // 0
@@ -45,11 +43,11 @@ char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 	"｜　　ーーー　　　　｜　　　　　　　｜　　　　ーーー　　　｜\n",  // 9
 	"｜　｜保　温｜　　　｜　98　90　70　｜　　　｜ロック｜　　｜\n",  // 10
 	"｜　｜温　度｜　　　｜　\x1b[31m●\x1b[39m　〇　〇　｜　　　｜解　除｜　　｜\n",  // 11
-	"｜　｜選　択｜　　　｜　　　　　　　｜　　　｜　　　｜　　｜\n",  // 12
+	"｜　｜変　更｜　　　｜　　　　　　　｜　　　｜　　　｜　　｜\n",  // 12
 	"｜　　ーーー　　　　　ーーーーーーー　　　　｜　〇　｜　　｜\n",  // 13
 	"｜　　入力Ｔ　　　　　　　　　　　　　　　　｜　　　｜　　｜\n",  // 14
 	"｜　　　　　　　　　　▼　　　　　　　　　　　ーーー　　　｜\n",  // 15
-	"｜　　ーーー　　水位：□□□□□□□□□□　　入力Ｒ　　　｜\n",  // 16
+	"｜　　ーーー　　水位：□□□□□□□□□□　　入力Ｌ　　　｜\n",  // 16
 	"｜　｜給　水｜　　　　　　　　　　　　　　　　　　　　　　｜\n",  // 17
 	"｜　　ーーー　　　　　　　　　　　　　　　　　　　　　　　｜\n",  // 18
 	"｜　　入力Ｗ　　　　　　　　　　　【アプリ終了　入力：Ｑ】｜\n",  // 19
@@ -76,7 +74,7 @@ int main(void)
 
 		// 水があり、お湯が沸いている状態
 		if (nowWater > LACKWATER && nowDeg >= targetDeg) {
-			if(!lock){
+			if(lock == LOCK_ON){
 				// 保温モード(ロック未解除)
 				keepDeg();
 			}
