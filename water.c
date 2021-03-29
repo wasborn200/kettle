@@ -132,7 +132,7 @@ int drainWater(int nowWater, int* loc) {
 
 		}
 
-		if (msgResetFlag == MSG_RESET_ON) {
+		if (msgResetFlag == MSG_RESET_ON && nowWater != LACKWATER) {
 			messageReset();
 			printf("\r給湯(入力Ａ)を行ってください。再ロック(入力Ｌ)");
 			msgResetFlag = MSG_RESET_OFF;
