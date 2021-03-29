@@ -22,7 +22,6 @@
 
 extern int nowDeg;
 extern int targetDeg;
-extern int keepDegFlag;
 
 /// <summary>
 /// 保温温度まで水を加熱させる
@@ -74,7 +73,7 @@ void raiseDeg() {
 	Sleep(2000);
 }
 
-keepDeg() {
+keepDeg(int* loc) {
 	int dropDegCount = COUNTRESET;
 
 	do {
@@ -84,7 +83,7 @@ keepDeg() {
 		// h入力：保温温度変更
 		// q入力：アプリ終了
 		if (GetKeyState('L') & 0x8000) {
-			lockOff();
+			lockOff(loc);
 			break;
 		}
 		else if (GetKeyState('T') & 0x8000) {
@@ -160,6 +159,8 @@ void reflectDeg() {
 /// </summary>
 void changeTargetDeg() {
 	
+	static int keepDegFlag = COUNTRESET;
+
 	// 保温温度を98→90→70の順でループする
 	if (keepDegFlag != 2) {
 		keepDegFlag++;

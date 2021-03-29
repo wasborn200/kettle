@@ -18,7 +18,6 @@
 #define MSG_RESET_OFF 0
 #define DISP_STATUS_DEFAULT "｜　　　　　　　　　｜　〇　　　　〇｜　　　　　　　　　　｜\n"
 
-extern int nowWater;
 extern char display[ROW_MAX_NUMBER][COLUMN_NUMBER];
 extern int nowDeg;
 
@@ -39,7 +38,7 @@ char waters[ROW_WATERS_NUMBER][COLUMN_NUMBER] = {
 /// <summary>
 /// 水位がMAXになるまで水をいれる
 /// </summary>
-void addWater() {
+int addWater(int nowWater) {
 	int msgResetFlag = MSG_RESET_OFF;
 
 	messageReset();
@@ -95,13 +94,15 @@ void addWater() {
 		printf("\r水が満杯になりました。");
 		Sleep(2000);
 	}
+
+	return nowWater;
 }
 
 /// <summary>
 /// 給湯を行う。
 /// 一定時間何も行わない場合、給湯をロックする
 /// </summary>
-void drainWater() {
+int drainWater(int nowWater, int* loc) {
 	int msgResetFlag = MSG_RESET_OFF;
 	int lockCount = COUNTRESET;
 
@@ -110,7 +111,7 @@ void drainWater() {
 
 	do {
 		if (GetKeyState('L') & 0x8000 || lockCount >= 100) {
-			lockOn();
+			lockOn(loc);
 			break;
 		}
 
@@ -152,4 +153,5 @@ void drainWater() {
 		Sleep(2000);
 	}
 
+	return nowWater;
 }

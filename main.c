@@ -24,12 +24,8 @@
 
 int nowDeg = MINDEG;
 int targetDeg = TARGETDEG_98;
-int nowWater = LACKWATER;
-int keepDegFlag = COUNTRESET;
-int lock = LOCK_ON;
 
 // 初期画面表示
-
 char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",   // 0
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",  // 1
@@ -56,6 +52,11 @@ char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 
 int main(void)
 {
+	int nowWater = LACKWATER;
+	int lock = LOCK_ON;
+	int* loc;
+	loc = &lock;
+
 	changeDisplay();
 	printf("給湯ポットアプリ開始");
 	Sleep(2000);
@@ -64,7 +65,7 @@ int main(void)
 		
 		// 給水モード(水が無い状態)
 		if (nowWater == LACKWATER && nowDeg == MINDEG) {
-			addWater();
+			nowWater = addWater(nowWater);
 		}
 
 		// 加熱モード(水があり、保温温度以下の状態)
@@ -76,11 +77,11 @@ int main(void)
 		if (nowWater > LACKWATER && nowDeg >= targetDeg) {
 			if(lock == LOCK_ON){
 				// 保温モード(ロック未解除)
-				keepDeg();
+				keepDeg(loc);
 			}
 			else {
 				// 給湯モード(ロック解除済み)
-				drainWater();
+				nowWater = drainWater(nowWater, loc);
 			}
 		}
 

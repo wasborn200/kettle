@@ -36,8 +36,8 @@ void messageReset() {
 /// <summary>
 /// 給湯をロックする
 /// </summary>
-void lockOn() {
-	lock = LOCK_ON;
+void lockOn(int* loc) {
+	*loc = LOCK_ON;
 	strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKON);
 	changeDisplay();
 	printf("\r給湯がロックされました。");
@@ -47,8 +47,8 @@ void lockOn() {
 /// <summary>
 /// 給湯ロックを解除する
 /// </summary>
-void lockOff() {
-	lock = LOCK_OFF;
+void lockOff(int* loc) {
+	*loc = LOCK_OFF;
 	strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKOFF);
 	changeDisplay();
 	printf("\r給湯ロックが解除されました。");
