@@ -3,14 +3,14 @@
 #include <conio.h>
 #include <Windows.h>
 
-#define DEG_5 5
-#define MINDEG 10
-#define TARGETDEG_98 98
-#define TARGETDEG_90 90
-#define TARGETDEG_70 70
-#define ROW_DISPLAYDEG_NUMBER 5
-#define ROW_TARGETDEG_NUMBER 11
-#define ROW_STATUS_NUMBER 8
+#define DEG_5 5		// 5度
+#define MINDEG 10	// 最低温度
+#define TARGETDEG_98 98		// 98度
+#define TARGETDEG_90 90		// 90度
+#define TARGETDEG_70 70		// 70度
+#define ROW_DISPLAYDEG_NUMBER 5		// 温度表示部分の行番号
+#define ROW_TARGETDEG_NUMBER 11		// 保温温度表示部分の行番号
+#define ROW_STATUS_NUMBER 8			// 加熱、保温状態表示部分の行番号
 #define DISP_TARGETDEG_98 "｜　｜温　度｜　　　｜　\x1b[31m●\x1b[39m　〇　〇　｜　　　｜解　除｜　　｜\n"
 #define DISP_TARGETDEG_90 "｜　｜温　度｜　　　｜　〇　\x1b[31m●\x1b[39m　〇　｜　　　｜解　除｜　　｜\n"
 #define DISP_TARGETDEG_70 "｜　｜温　度｜　　　｜　〇　〇　\x1b[31m●\x1b[39m　｜　　　｜解　除｜　　｜\n"
@@ -18,7 +18,7 @@
 #define DISP_STATUS_KEEPINGDEG "｜　　　　　　　　　｜　〇　　　　\x1b[31m●\x1b[39m｜　　　　　　　　　　｜\n"
 #define DISP_DEG_BEFORE "｜　｜　　　｜　　　｜　　 \x1b[31m\0"
 #define DISP_DEG_AFTER "\x1b[39m　　｜　　　｜　　　｜　　｜\n\0"
-#define COUNTRESET 0
+#define COUNTRESET 0	// カウンターをリセットする
 
 extern int nowDeg;
 extern int targetDeg;
@@ -36,7 +36,6 @@ void raiseDeg() {
 
 	strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_HEATINGDEG);
 
-	// 0.5秒毎に10度ずつ加熱する
 	while (nowDeg < targetDeg) {
 
 		// h入力：保温温度変更
@@ -67,13 +66,14 @@ void raiseDeg() {
 		
 	}
 
+	// お湯が沸いた時の画面表示
 	strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_KEEPINGDEG);
 	changeDisplay();
 	printf("\rお湯が沸きました。");
 	Sleep(2000);
 }
 
-keepDeg(int* loc) {
+void keepDeg(int* loc) {
 	int dropDegCount = COUNTRESET;
 
 	do {
@@ -93,7 +93,7 @@ keepDeg(int* loc) {
 			exit(0);
 		}
 
-		// 2秒毎に温度を１℃下げる
+		// 2秒毎に温度を１度下げる
 		Sleep(50);
 		dropDegCount++;
 		if (dropDegCount == 40) {
@@ -149,6 +149,7 @@ void reflectDeg() {
 	}
 	deg[5] = '\0';
 
+	// 画面表示のの温度表示部分を設定する
 	strcat(display[ROW_DISPLAYDEG_NUMBER], DISP_DEG_BEFORE);
 	strcat(display[ROW_DISPLAYDEG_NUMBER], deg);
 	strcat(display[ROW_DISPLAYDEG_NUMBER], DISP_DEG_AFTER);

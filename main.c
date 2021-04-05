@@ -10,10 +10,10 @@
 #include "water.c"
 #include "deg.c"
 
-#define MINDEG 10
-#define TARGETDEG_98 98
-#define LACKWATER 0
-#define COUNTRESET 0
+#define MINDEG 10	// 最低温度
+#define TARGETDEG_98 98		// 98度
+#define LACKWATER 0		// 水位0
+#define COUNTRESET 0	// カウンターをリセットする
 #define ROW_MAX_NUMBER 21
 #define COLUMN_NUMBER 80
 #define LOCK_ON 0
@@ -22,11 +22,12 @@
 #define DISP_LOCKOFF "｜　　ーーー　　　　　ーーーーーーー　　　　｜　\x1b[31m●\x1b[39m　｜　　｜\n"
 
 
-int nowDeg = MINDEG;
-int targetDeg = TARGETDEG_98;
+int nowDeg = MINDEG;	// 現在の水温
+int targetDeg = TARGETDEG_98;	// 保温温度
 
 // 初期画面表示
-char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
+// 状態が変わるたびに行列の特定箇所を変更することで、状態変化を表し画面に表示する
+char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {						   // 行番号
 	" ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー\n",   // 0
 	"｜　　　　　　　　　　　　　　　　　　　　　　　　　　　　｜\n",  // 1
 	"｜　　ーーー　　　　　ーーーーーーー　　　　　ーーー　　　｜\n",  // 2
@@ -53,8 +54,8 @@ char display[ROW_MAX_NUMBER][COLUMN_NUMBER] = {
 int main(void)
 {
 	int nowWater = LACKWATER;
-	int lock = LOCK_ON;
-	int* loc;
+	int lock = LOCK_ON;		// ロックのONOFF
+	int* loc;	// ロックのポインタ
 	loc = &lock;
 
 	changeDisplay();
