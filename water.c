@@ -150,6 +150,7 @@ int drainWater(int nowWater, int* loc) {
 	if (nowWater == LACKWATER) {
 		strcpy(display[ROW_STATUS_NUMBER], DISP_STATUS_DEFAULT);
 		strcpy(display[ROW_LOCK_NUMBER], DISP_LOCKON);
+		lockOn(loc);
 		nowDeg = MINDEG;
 		reflectDeg();
 		changeDisplay();
